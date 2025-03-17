@@ -14,7 +14,7 @@ The SnapGene History Exporter is a Python tool designed to extract and export th
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/yourusername/snapgene-history-exporter.git
+    git clone https://github.com/MinTTT/snapgene_history_exporter.git
     ```
 2. Navigate to the project directory:
     ```sh
