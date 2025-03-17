@@ -155,7 +155,17 @@ def snapgene_file_to_dict(filepath=None, fileobject=None):
         elif ord(next_byte) == 5:
             # READ THE PRIMERS
             """
-            <Primer recentID="0" name="rbna_51" sequence="gctagcaacgcaatgacgTTATATCGTATGGGGCTGACTTCAGGTG" description="&quot;tm:60, binding at p15A&quot;" dateAdded="2020-04-02T06:06:12Z"><BindingSite location="724-751" boundStrand="1" annealedBases="TTATATCGTATGGGGCTGACTTCAGGTG" meltingTemperature="60"><Component bases="gctagcaacgcaatgacg"/><Component hybridizedRange="724-751" bases="TTATATCGTATGGGGCTGACTTCAGGTG"/></BindingSite><BindingSite simplified="1" location="724-751" boundStrand="1" annealedBases="TTATATCGTATGGGGCTGACTTCAGGTG" meltingTemperature="60"><Component bases="gctagcaacgcaatgacg"/><Component hybridizedRange="724-751" bases="TTATATCGTATGGGGCTGACTTCAGGTG"/></BindingSite></Primer>"""
+            Example for primers:
+            <Primer recentID="0" name="rbna_51" sequence="gctagcaacgcaatgacgTTATATCGTATGGGGCTGACTTCAGGTG" description="&quot;tm:60, binding at p15A&quot;" dateAdded="2020-04-02T06:06:12Z">
+            <BindingSite location="724-751" boundStrand="1" annealedBases="TTATATCGTATGGGGCTGACTTCAGGTG" meltingTemperature="60">
+            <Component bases="gctagcaacgcaatgacg"/>
+            <Component hybridizedRange="724-751" bases="TTATATCGTATGGGGCTGACTTCAGGTG"/>
+            </BindingSite>
+            <BindingSite simplified="1" location="724-751" boundStrand="1" annealedBases="TTATATCGTATGGGGCTGACTTCAGGTG" meltingTemperature="60">
+            <Component bases="gctagcaacgcaatgacg"/><Component hybridizedRange="724-751" bases="TTATATCGTATGGGGCTGACTTCAGGTG"/>
+            </BindingSite>
+            </Primer>
+            """
             primers_data = xmltodict.parse(fileobject.read(block_size))
             primers = primers_data["Primers"]["Primer"]
             data["primers"] = []
