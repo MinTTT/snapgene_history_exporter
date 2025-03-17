@@ -77,7 +77,7 @@ def remove_suffix(name: str):
 def snapgene_file_to_dict(filepath=None, fileobject=None):
     """Return a dictionary containing the data from a ``*.dna`` file.
     `*.dna` file is a kind of TLV-like packet. 1 byte for the type of the data recorded, 
-    4 bytes for the size of the data, and the data itself.
+    4 bytes for the size of the data, and followed the data itself.
 
     Parameters
     ----------
@@ -87,6 +87,11 @@ def snapgene_file_to_dict(filepath=None, fileobject=None):
     fileobject
         On object-like pointing to the data of a .dna file created with
         SnapGene.
+
+    Return
+    -------
+    data: dict
+        A dictionary containing the data from a ``*.dna`` file.
     """
     if filepath is not None:
         fileobject = open(filepath, "rb")
