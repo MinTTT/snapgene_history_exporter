@@ -1,0 +1,36 @@
+
+
+
+
+
+### history structure
+
+HistoryTree
+|- Node
+    |- @name  # file name
+    |- @seqLen  # sequence length
+    |- @operation  # assembly method
+    |- Node
+        |- 0  # assembly fragments
+            |- @name  # fragments name
+            |- @seqLen
+            |- @operation
+            |- Oligo
+                |- 0  # first primer
+                    |- @name  # primer name
+                    |- @sequence  # sequence content
+                |- 1 # next primer
+            |- Node
+                |- @name  # Amplification template
+                |- Primers
+                    |- Primer
+                        |- 0
+                            |- @name 
+                            |- BindingSite
+                                |- @annealedBases
+                                |- @meltingTemperature
+                        |- 1
+                            |...
+        |- 1
+
+        
