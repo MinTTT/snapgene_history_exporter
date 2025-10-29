@@ -79,6 +79,12 @@ if __name__ == '__main__':
 
     files_name = [file.name for file in os.scandir(dir_ps) 
                   if file.name.split('.')[-1] == 'dna']
+    
+    # Check if there are "." or "#" is the fisrt character in the directory name
+    for file in files_name:
+        if '.' in file[0] or '#' in file[0]:
+            print(f"Warning: File {file} contains '.' or '#'. It will be excluded from the output.")
+    files_name = [file for file in files_name if '.' not in file[0] and '#' not in file[0]]
 
     all_history = dict()
     # Get all histories of the
@@ -111,7 +117,8 @@ if __name__ == '__main__':
                     else:
                         # check the sequences are the same
                         if all_primers_dict[frag['primers_0']['name']]['sequence'].upper() != frag['primers_0']['sequence'].upper():
-                            print(f"Primer {frag['primers_0']['name']} has different sequence in different plasmids!")
+                            raise Warning(f"Primer {frag['primers_0']['name']} has different sequence in different plasmids!")
+                            # print(f"Primer {frag['primers_0']['name']} has different sequence in different plasmids!")
                         else:
                             all_primers_dict[frag['primers_0']['name']]['assembleFor'].append(remove_suffix(pd_name))
                     
@@ -121,7 +128,7 @@ if __name__ == '__main__':
                     else:
                         # check the sequences are the same
                         if all_primers_dict[frag['primers_1']['name']]['sequence'].upper() != frag['primers_1']['sequence'].upper():
-                            print(f"Primer {frag['primers_1']['name']} has different sequence in different plasmids!")
+                            raise Warning(f"Primer {frag['primers_1']['name']} has different sequence in different plasmids!")
                         else:
                             all_primers_dict[frag['primers_1']['name']]['assembleFor'].append(remove_suffix(pd_name))
                     
@@ -170,7 +177,7 @@ if __name__ == '__main__':
                 print(f"Fragment {tag} has different primers in different plasmids!")
             if all_frags[index]['template'] != uniq_frag_dict[tag]['template']:
                 print(f"Fragment {tag} has different template in different plasmids!")
-            uniq_frag_dict[tag]['assembleFor'] += '; ' + all_frags[index]['assembleFor']
+            uniq_frag_dict[tag]['assembleFor'] += '; ' + all_frags[index]['assembleFor']   
 
     for tag, frag in uniq_frag_dict.items():
         uniq_frag.append({'#_tag': tag, 'Description': frag['assembleFor'], 'primers': frag['frag_primers_name'],
@@ -182,16 +189,19 @@ if __name__ == '__main__':
         assemble_frag_list.sort(key= lambda name: int(name.split('-')[-1]))
         assemble_frag = '; '.join(assemble_frag_list)
         method = asb_dict['operation']
+        # all_assemble.concat(pd.DataFrame(data={"Plasmid #": remove_suffix(asb_name), "Assembly Fragments": assemble_frag,
+        #                      "Colony PCR": None, 'Method': method, 'Sanger Sequencing': None}))
         all_assemble.append({"Plasmid #": remove_suffix(asb_name), "Assembly Fragments": assemble_frag,
                              "Colony PCR": None, 'Method': method, 'Sanger Sequencing': None})
 
     fragments_df = pd.DataFrame(columns=['#_tag', 'Description', 'primers', 'template', 'product size'])
     for frag in uniq_frag:
-        fragments_df = fragments_df.append(frag, ignore_index=True)
+        # fragments_df = fragments_df.append(frag, ignore_index=True)
+        fragments_df = pd.concat([fragments_df, pd.Series(frag).to_frame().T], ignore_index=True)
     assemble_df = pd.DataFrame(columns=['Plasmid #', 'Assembly Fragments', 'Colony PCR', 'Method', 'Sanger Sequencing'])
     for assemble in all_assemble:
-        assemble_df = assemble_df.append(assemble, ignore_index=True)
-
+        # assemble_df = assemble_df.append(assemble, ignore_index=True)
+        assemble_df = pd.concat([assemble_df, pd.Series(assemble).to_frame().T], ignore_index=True)
     for primer_name, primer_dict in all_primers_dict.items():
         primer_dict['assembleFor'] = '; '.join(primer_dict['assembleFor'])
         # print(f"{primer_name}\t{primer_dict['sequence']}\t{primer_dict['assembleFor']}")
