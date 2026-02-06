@@ -42,6 +42,10 @@ def tag_generator(idf_list: list, mode: str='date', prefix: Optional[str]=None )
         if prefix is not None:
             raise Warning("prefix is not used in 'date' mode")
     elif mode == 'prefix':
+        if prefix is None:
+            raise ValueError("Please provide the prefix in 'prefix' mode")
+        if prefix[-1] == '-':
+            prefix = prefix[:-1]
         tag_prefix = prefix
     else:
         raise ValueError("mode should be either 'date' or 'prefix'")
@@ -50,7 +54,7 @@ def tag_generator(idf_list: list, mode: str='date', prefix: Optional[str]=None )
     tag_init = 1
     for idf in idf_list:
         if idf not in idf_set:
-            unq_dict[idf] = '-'.join([tag_prefix, str(tag_init)])
+            unq_dict[idf] = f'{tag_prefix}-{tag_init}'
             tag_init += 1
             idf_set.add(idf)
         yield unq_dict[idf]
@@ -59,12 +63,14 @@ def tag_generator(idf_list: list, mode: str='date', prefix: Optional[str]=None )
 # %%
 if __name__ == '__main__':
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hi:o:", ['help'])
+        opts, args = getopt.getopt(sys.argv[1:], "hi:o:p:", ['help', 'prefix'])
     except:
         print("Error")
+        sys.exit(2)
 
     dir_ps = None
     dir_out = None
+    fragment_prefix = None
     for opt, arg in opts:
         if opt in ['-i']:
             dir_ps = arg
@@ -74,8 +80,13 @@ if __name__ == '__main__':
             print("Usage:"
                   "-i directory of *.dna files")
             exit(0)
+        elif opt in ['--prefix', '-p']:
+            fragment_prefix = arg
     if dir_out is None:
         dir_out = dir_ps
+    if dir_ps is None:
+        print("Please provide the directory of snapgene files via -i")
+        sys.exit(2)
 
     files_name = [file.name for file in os.scandir(dir_ps) 
                   if file.name.split('.')[-1] == 'dna']
@@ -160,7 +171,11 @@ if __name__ == '__main__':
     all_idf = [all_idf[i] for i in sorted_index]
     all_frags = [all_frags[i] for i in sorted_index]
 
-    taggenerator = tag_generator(all_idf)
+    if fragment_prefix is not None:
+        print(f"Using fragment prefix: {fragment_prefix}")
+        taggenerator = tag_generator(all_idf, mode='prefix', prefix=fragment_prefix)
+    else:
+        taggenerator = tag_generator(all_idf)
 
     uniq_tag = set()
     uniq_frag = []
@@ -208,7 +223,7 @@ if __name__ == '__main__':
     primers_df = pd.DataFrame.from_dict(all_primers_dict, orient='index')
 
     # export all files
-    excel_file_path = f'{os.path.join(dir_out, f"{os.path.basename(dir_ps)}_all_assemblies_summary.xlsx")}'
+    excel_file_path = os.path.join(dir_out, f"{os.path.basename(dir_ps)}_all_assemblies_summary.xlsx")
     print(f'[SnapGene Histogram Exporter] -> Exporting to {excel_file_path}')
     with pd.ExcelWriter(excel_file_path) as writer:
         fragments_df.to_excel(writer, sheet_name='Fragments')
